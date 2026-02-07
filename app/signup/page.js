@@ -2,61 +2,108 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { auth, db } from '@/lib/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { auth, db } from '@/lib/firebase';
 
-export default function SignUpPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [username, setUsername] = useState('');
-  const [year, setYear] = useState('');
-  const [major, setMajor] = useState('');
+export default function SignupPage() {
   const router = useRouter();
 
-  const artistsPool = ["Taylor Swift","Kendrick Lamar","Dua Lipa","Drake","Billie Eilish","BTS"];
-  const songsPool = ["Anti-Hero","God's Plan","Bad Guy","Dynamite","Stay","Blinding Lights","Levitating"];
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [year, setYear] = useState('');
+  const [genres, setGenres] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState('');
 
-  const handleSignUp = async () => {
+  const allGenres = ['Pop', 'Hip-Hop', 'Indie', 'Rock', 'EDM', 'R&B', 'Jazz'];
+
+  const toggleGenre = g => {
+    setGenres(prev =>
+      prev.includes(g) ? prev.filter(x => x !== g) : [...prev, g]
+    );
+  };
+
+  const signup = async () => {
+    if (!email || !password || !year) return alert('Fill all fields');
+
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
+      setLoading(true);
+      const res = await createUserWithEmailAndPassword(auth, email, password);
 
-      const dummySpotifyStats = {
-        topArtists: [...Array(3)].map(() => artistsPool[Math.floor(Math.random()*artistsPool.length)]),
-        currentSong: songsPool[Math.floor(Math.random()*songsPool.length)],
-        monthlyWrap: {
-          totalTracks: Math.floor(Math.random()*30 + 10),
-          topTrack: songsPool[Math.floor(Math.random()*songsPool.length)]
-        }
-      };
-
-      await setDoc(doc(db, 'users', user.uid), {
-        uid: user.uid,
-        username,
+      await setDoc(doc(db, 'users', res.user.uid), {
+        uid: res.user.uid,
+        email,
         year,
-        major,
-        spotifyStats: dummySpotifyStats
+        genres,
+        spotifyLinked: false,
+        createdAt: serverTimestamp()
       });
 
-      alert('Account created successfully!');
-      router.push('/swipe');
-
-    } catch (error) {
-      console.error(error);
-      alert(error.message);
+      setSuccess('Account created successfully!');
+      setTimeout(() => router.push('/swipe'), 1200);
+    } catch (e) {
+      alert(e.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-[#BF5700] p-4 text-white">
-      <h1 className="text-3xl font-bold mb-6">Sign Up for UTunes</h1>
-      <input placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} className="p-2 mb-2 rounded text-black w-full max-w-md"/>
-      <input placeholder="Password" type="password" value={password} onChange={e=>setPassword(e.target.value)} className="p-2 mb-2 rounded text-black w-full max-w-md"/>
-      <input placeholder="Username" value={username} onChange={e=>setUsername(e.target.value)} className="p-2 mb-2 rounded text-black w-full max-w-md"/>
-      <input placeholder="Year" value={year} onChange={e=>setYear(e.target.value)} className="p-2 mb-2 rounded text-black w-full max-w-md"/>
-      <input placeholder="Major" value={major} onChange={e=>setMajor(e.target.value)} className="p-2 mb-4 rounded text-black w-full max-w-md"/>
-      <button onClick={handleSignUp} className="bg-white text-[#BF5700] p-2 rounded font-bold w-full max-w-md">Sign Up</button>
+    <div className="min-h-screen flex items-center justify-center bg-[#51423A] text-white">
+      <div className="w-[350px] p-6 bg-[#968C89] rounded-xl">
+        <h1 className="text-2xl font-bold mb-4">Join UTunes 🎵</h1>
+
+        <input
+          className="w-full p-2 mb-2 text-black rounded"
+          placeholder="UT Email"
+          onChange={e => setEmail(e.target.value)}
+        />
+
+        <input
+          type="password"
+          className="w-full p-2 mb-2 text-black rounded"
+          placeholder="Password"
+          onChange={e => setPassword(e.target.value)}
+        />
+
+        <select
+          className="w-full p-2 mb-3 text-black rounded"
+          onChange={e => setYear(e.target.value)}
+        >
+          <option value="">Graduation Year</option>
+          {[2026, 2027, 2028, 2029, 2030].map(y => (
+            <option key={y}>{y}</option>
+          ))}
+        </select>
+
+        <p className="text-sm mb-1">Genres</p>
+        <div className="flex flex-wrap gap-2 mb-4">
+          {allGenres.map(g => (
+            <button
+              key={g}
+              onClick={() => toggleGenre(g)}
+              className={`px-2 py-1 rounded text-sm ${
+                genres.includes(g) ? 'bg-[#D16A28]' : 'bg-[#BBC5CD] text-black'
+              }`}
+            >
+              {g}
+            </button>
+          ))}
+        </div>
+
+        <button
+          onClick={signup}
+          disabled={loading}
+          className="w-full bg-[#B34A26] p-2 rounded font-bold"
+        >
+          {loading ? 'Creating...' : 'Sign Up'}
+        </button>
+
+        {success && (
+          <p className="mt-3 text-green-200 text-sm">{success}</p>
+        )}
+      </div>
     </div>
   );
 }
