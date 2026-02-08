@@ -1,0 +1,282 @@
+/* Add to LandingPage.module.css */
+@import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
+
+.container {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    background-color: #e7d0b8;
+    padding-bottom: 15%;
+    min-height: 100vh;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+}
+
+.utune {
+    width: 400px;
+    height: auto;
+    aspect-ratio: 26/11;
+}
+
+.logo {
+    transform: translateX(100px);
+    flex-direction: row;
+}
+
+.login {
+    z-index: 333;
+    position: relative;
+    flex-direction: column;
+    margin-left: 45%;
+    margin-top: 0%;
+}
+
+.logintext {
+    margin-top: -11%;
+}
+
+.record {
+    position: absolute;
+    width: 1000px;
+    height: 1000px;
+    left: -100px;
+    top: -100px;
+    z-index: 0;
+}
+
+.mascot {
+    margin-top: -15%;
+    margin-left: 30%;
+    width: 343.215px;
+    height: auto;
+}
+
+.box {
+    width: 684px;
+    height: 81px;
+    flex-shrink: 0;
+    border-radius: 20px;
+    border: 5px solid #CB580B;
+    padding: 0 20px;
+    font-size: 18px;
+    font-family: "Special Elite";
+    margin-bottom: 15px;
+}
+
+.box:focus {
+    outline: none;
+    border-color: #2E5F7D;
+}
+
+.title {
+    color: var(--Denim-Blue, #2E5F7D);
+    font-family: 'Special Elite';
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    text-align: center;
+}
+
+.body {
+    color: var(--Charcoal, #1C1C1C);
+    font-family: "Special Elite";
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+/* Genres */
+.genresContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    max-width: 684px;
+}
+
+.genreButton {
+    padding: 10px 20px;
+    border-radius: 15px;
+    border: none;
+    background-color: #BBC5CD;
+    color: #1C1C1C;
+    font-family: "Courier Prime", monospace;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.genreSelected {
+    background-color: #D16A28;
+    color: white;
+}
+
+.genreButton:hover {
+    opacity: 0.8;
+}
+
+/* Spotify Checkbox */
+.spotifyCheckbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.spotifyCheckbox input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+/* Buttons */
+.button {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    align-items: center;
+    padding-top: 5%;
+    padding-left: 17%;
+}
+
+.buttonStyle {
+    background-color: #CB580B;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+    padding: 20px 32px;
+    color: #FFF;
+    text-align: center;
+    font-family: "Courier Prime", monospace;
+    font-size: 24px;
+    font-weight: 400;
+    letter-spacing: -2.52px;
+    cursor: pointer;
+}
+
+.buttonStyle:hover {
+    background-color: #a94a09;
+}
+
+/* Navbar */
+.navbar {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1200px;
+    justify-content: center;
+    display: flex;
+    gap: 150px;
+    padding: 14px 28px;
+    list-style: none;
+    margin: 0;
+    background-color: rgba(203, 88, 11, 1);
+    border-radius: 40px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+    z-index: 9999;
+}
+
+.navItem {
+    color: rgba(255, 255, 255, 1);
+    font-family: "Courier Prime", monospace;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 8px 14px;
+    border-radius: 20px;
+    transition: background-color 0.2s ease;
+}
+
+.navItem:hover {
+    background-color: rgba(83, 43, 22, 1);
+}
+
+/* Overlay Modal */
+.overlayBackdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.overlayCard {
+    background-color: #FCF9F6;
+    border: 5px solid #CB580B;
+    border-radius: 20px;
+    padding: 60px 80px;
+    max-width: 600px;
+    text-align: center;
+    position: relative;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.closeButton {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 40px;
+    cursor: pointer;
+    color: #CB580B;
+    line-height: 1;
+}
+
+.closeButton:hover {
+    color: #a94a09;
+}
+
+.overlayIcon {
+    font-size: 80px;
+    margin-bottom: 20px;
+    background-color: #D9A88A;
+    width: 120px;
+    height: 120px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 30px;
+}
+
+.overlayTitle {
+    color: #2E5F7D;
+    font-family: "Special Elite";
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+.overlayDescription {
+    color: #1C1C1C;
+    font-family: "Courier Prime", monospace;
+    font-size: 20px;
+    line-height: 1.6;
+}

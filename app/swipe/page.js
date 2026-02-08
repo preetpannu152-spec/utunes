@@ -1,208 +1,151 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import TinderCard from 'react-tinder-card';
+import { collection, getDocs, addDoc, query, where } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
-import {
-  collection,
-  getDocs,
-  addDoc,
-  query,
-  where
-} from 'firebase/firestore';
-
-const TABS = ['Swipe', 'Chats', 'Account', 'Events', 'Playlists'];
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import PageWrapper from '@/components/PageWrapper';
+import TopNav from '@/components/TopNav';
+import styles from './swipe.module.css';
 
 export default function SwipePage() {
-  const user = auth.currentUser;
-
-  const [tab, setTab] = useState('Swipe');
   const [users, setUsers] = useState([]);
-  const [index, setIndex] = useState(0);
-  const [matches, setMatches] = useState([]);
-  const [incomingLikes, setIncomingLikes] = useState([]);
+  const router = useRouter();
 
-  /* ---------------- LOAD USERS ---------------- */
   useEffect(() => {
-    if (!user) return;
+    if (!auth.currentUser) router.push('/swipe');
+    fetchUsers();
+  }, []);
 
-    const load = async () => {
-      const snap = await getDocs(collection(db, 'users'));
-      setUsers(
-        snap.docs
-          .map(d => d.data())
-          .filter(u => u.uid !== user.uid)
-      );
-
-      const matchSnap = await getDocs(
-        query(collection(db, 'matches'), where('users', 'array-contains', user.uid))
-      );
-      setMatches(matchSnap.docs.map(d => d.data()));
-
-      const likesSnap = await getDocs(
-        query(
-          collection(db, 'swipes'),
-          where('to', '==', user.uid),
-          where('direction', '==', 'right')
-        )
-      );
-      setIncomingLikes(likesSnap.docs.map(d => d.data()));
-    };
-
-    load();
-  }, [user]);
-
-  /* ---------------- SWIPE ---------------- */
-  const swipe = async direction => {
-    const target = users[index];
-    if (!target) return;
-
-    await addDoc(collection(db, 'swipes'), {
-      from: user.uid,
-      to: target.uid,
-      direction
-    });
-
-    if (direction === 'right') {
-      const q = query(
-        collection(db, 'swipes'),
-        where('from', '==', target.uid),
-        where('to', '==', user.uid),
-        where('direction', '==', 'right')
-      );
-      const snap = await getDocs(q);
-      if (!snap.empty) {
-        await addDoc(collection(db, 'matches'), {
-          users: [user.uid, target.uid],
-          createdAt: new Date()
-        });
-      }
-    }
-
-    setIndex(i => i + 1);
+  const fetchUsers = async () => {
+    const snap = await getDocs(collection(db, 'users'));
+    setUsers(
+      snap.docs
+        .map(d => d.data())
+        .filter(u => u.uid !== auth.currentUser.uid)
+    );
   };
 
-  /* ---------------- UI ---------------- */
+  const swiped = async (dir, target) => {
+    if (dir !== 'right') return;
+
+    await addDoc(collection(db, 'swipes'), {
+      from: auth.currentUser.uid,
+      to: target.uid,
+      direction: 'right',
+    });
+
+    const q = query(
+      collection(db, 'swipes'),
+      where('from', '==', target.uid),
+      where('to', '==', auth.currentUser.uid),
+      where('direction', '==', 'right')
+    );
+
+    const snap = await getDocs(q);
+    if (!snap.empty) {
+      await addDoc(collection(db, 'matches'), {
+        user1: auth.currentUser.uid,
+        user2: target.uid,
+        matchedAt: new Date(),
+      });
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-[#51423A] text-white p-4">
-      {/* Tabs */}
-      <div className="flex gap-3 mb-6 justify-center">
-        {TABS.map(t => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`px-3 py-1 rounded ${
-              tab === t ? 'bg-[#D16A28]' : 'bg-[#968C89]'
-            }`}
-          >
-            {t}
-          </button>
-        ))}
+    <PageWrapper>
+      <TopNav active="Connect" />
+
+      <div className={styles.swipeContainer}>
+        {users.length === 0 && (
+          <p className={styles.noUsersText}>No users to swipe.</p>
+        )}
+
+        <div className={styles.cardContainer}>
+          {users
+            .slice(0)
+            .reverse()
+            .map((user, index) => {
+              const offset = index * 9;
+              return (
+                <TinderCard
+                  key={user.uid}
+                  onSwipe={dir => swiped(dir, user)}
+                  preventSwipe={['up', 'down']}
+                >
+                  <div
+                    className={styles.card}
+                    style={{ top: offset, zIndex: users.length - index }}
+                  >
+                    <div className={styles.cardBackground}>
+                      {/* Profile Image - placeholder */}
+                      <img
+                        src="/placeholder-musician.svg"
+                        alt={user.username}
+                        className={styles.profileImage}
+                      />
+
+                      {/* Username */}
+                      <h2 className={styles.username}>{user.username}</h2>
+
+                      {/* Information Section */}
+                      <div className={styles.infoSection}>
+                        <p className={styles.userInfo}>
+                          🎧 Currently:{' '}
+                          {user.spotifyStats?.currentSong ||
+                            user.monthlyStats?.currentlyPlaying ||
+                            'Not listening'}
+                        </p>
+
+                        <p className={styles.userInfo}>
+                          🔝 Top song:{' '}
+                          {user.spotifyStats?.topSong ||
+                            user.monthlyStats?.currentSong ||
+                            'N/A'}
+                        </p>
+
+                        <p className={styles.userInfo}>
+                          👤 Top artist:{' '}
+                          {user.spotifyStats?.topArtist ||
+                            user.monthlyStats?.topArtist ||
+                            'N/A'}
+                        </p>
+
+                        <p className={styles.userInfo}>
+                          ⏱️ Minutes:{' '}
+                          {user.spotifyStats?.minutes ||
+                            user.monthlyStats?.minutes ||
+                            'N/A'}
+                        </p>
+
+                        <p className={styles.userInfo}>
+                          🎵 Top genre:{' '}
+                          {user.spotifyStats?.topGenre ||
+                            user.monthlyStats?.topGenre ||
+                            'N/A'}
+                        </p>
+
+                        <p className={styles.userInfo}>
+                          💬 Looking for: {user.lookingFor || 'Not specified'}
+                        </p>
+
+                        {/* Genre Tags */}
+                        <div className={styles.genreTags}>
+                          {user.genres?.slice(0, 3).map((genre, i) => (
+                            <span key={i} className={styles.genreTag}>
+                              {genre}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </TinderCard>
+              );
+            })}
+        </div>
       </div>
-
-      {/* ---------------- SWIPE TAB ---------------- */}
-      {tab === 'Swipe' && (
-        <>
-          {!users[index] ? (
-            <p className="text-center">You’re all caught up 🎧</p>
-          ) : (
-            <div className="flex flex-col items-center">
-              <div className="w-[420px] bg-[#968C89] p-6 rounded-xl mb-6">
-                <h2 className="text-xl font-bold">{users[index].email}</h2>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {users[index].genres?.map(g => (
-                    <span
-                      key={g}
-                      className="bg-[#BBC5CD] text-black px-2 py-1 rounded text-sm"
-                    >
-                      {g}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex gap-10">
-                <button
-                  onClick={() => swipe('left')}
-                  className="bg-red-500 w-16 h-16 rounded-full text-3xl"
-                >
-                  ❌
-                </button>
-                <button
-                  onClick={() => swipe('right')}
-                  className="bg-green-500 w-16 h-16 rounded-full text-3xl"
-                >
-                  ✅
-                </button>
-              </div>
-            </div>
-          )}
-        </>
-      )}
-
-      {/* ---------------- CHATS TAB ---------------- */}
-      {tab === 'Chats' && (
-        <div>
-          <h2 className="text-xl font-bold mb-3">Matches</h2>
-          {matches.length === 0 && <p>No matches yet</p>}
-          {matches.map((m, i) => (
-            <div key={i} className="bg-[#968C89] p-3 mb-2 rounded">
-              Match with{' '}
-              {m.users.find(u => u !== user.uid)}
-            </div>
-          ))}
-
-          <h2 className="text-xl font-bold mt-6 mb-3">Liked You</h2>
-          {incomingLikes.map((l, i) => (
-            <div key={i} className="bg-[#B34A26] p-3 mb-2 rounded">
-              Someone liked you — review in Swipe
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* ---------------- ACCOUNT TAB ---------------- */}
-      {tab === 'Account' && (
-        <div className="bg-[#968C89] p-6 rounded">
-          <h2 className="text-xl font-bold mb-4">Account</h2>
-          <p className="mb-2">Spotify: <b>Not linked</b></p>
-          <button
-            className="bg-[#D16A28] px-4 py-2 rounded mb-3"
-            onClick={() => alert('Spotify linking coming soon')}
-          >
-            Link Spotify (Demo)
-          </button>
-          <br />
-          <a
-            href="https://spotify.com"
-            target="_blank"
-            className="underline"
-          >
-            Open Spotify
-          </a>
-        </div>
-      )}
-
-      {/* ---------------- EVENTS TAB ---------------- */}
-      {tab === 'Events' && (
-        <div>
-          {['ACL 2026', 'Moody Amphitheater', 'Mozart’s'].map(e => (
-            <div key={e} className="bg-[#968C89] p-3 mb-2 rounded">
-              🎶 {e} group chat
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* ---------------- PLAYLIST TAB ---------------- */}
-      {tab === 'Playlists' && (
-        <div>
-          {['PCL', 'GDC', 'UT Tower'].map(p => (
-            <div key={p} className="bg-[#968C89] p-3 mb-2 rounded">
-              📍 {p} playlist
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+    </PageWrapper>
   );
 }

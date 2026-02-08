@@ -1,0 +1,35 @@
+.topNav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background-color: #BF5700;
+  display: flex;
+  justify-content: space-around;
+  padding: 1rem 0;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+              0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.navButton {
+  background: none;
+  border: none;
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+}
+
+.navButton:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.navButtonActive {
+  opacity: 1;
+  text-decoration: underline;
+  transform: scale(1.1);
+}
