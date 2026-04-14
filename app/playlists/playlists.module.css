@@ -1,0 +1,39 @@
+.spacer {
+  height: 1rem;
+}
+
+.playlistsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  padding: 0 2.5rem;
+  padding-top: 5rem;
+}
+
+.playlistCard {
+  /* background-color: white; */
+  padding: 1rem;
+  border-radius: 0.75rem;
+  text-align: center;
+  transition: box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+
+.playlistCard:hover {
+  /* box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); */
+}
+
+.playlistImage {
+  margin-bottom: 0.75rem;
+  border-radius: 0.375rem;
+  object-fit: cover;
+}
+
+.playlistName {
+  font-weight: bold;
+  font-size: 1.125rem;
+}

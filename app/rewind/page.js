@@ -1,38 +1,53 @@
 import TopNav from '@/components/TopNav';
 import PageWrapper from '@/components/PageWrapper';
+import Image from 'next/image';
+import styles from './rewind.module.css';
 
 export default function Rewind() {
   return (
     <>
       <TopNav active="Rewind" />
-        <div className="p-10 text-center">
-          <h1 className="text-4xl font-bold">Your Music Rewind 🔁</h1>
-          <p className="opacity-70 mt-4">Here's what your semester sounded like</p>
+      <PageWrapper>
+        <div className={styles.logoContainer}>
+          <Image
+            src="/rewind.png"
+            alt="UTunes Rewind"
+            width={1000}
+            height={300}
+            className={styles.logo}
+          />
         </div>
 
-        <div className="grid grid-cols-2 gap-6 p-10 max-w-6xl">
+        <div className={styles.introSection}>
+          <p className={styles.introText}>Here's what your semester sounded like 🔁</p>
+        </div>
 
-          <div className="space-y-6">
-            <h1 className="text-4xl font-bold">Minutes listened: 24,827</h1>
-            <p className="opacity-70 mt-4">Top 3% of UT listeners. That's {Math.round(24827 / 60)} hours of pure music! </p>
+        <div className={styles.statsGrid}>
+          <div className={styles.statCard}>
+            <h1 className={styles.statTitle}>Minutes listened: 24,827</h1>
+            <p className={styles.statDescription}>
+              Top 3% of UT listeners. That's {Math.round(24827 / 60)} hours of pure music!
+            </p>
           </div>
 
-          <div className="space-y-6">
-            <h1 className="text-4xl font-bold">Most played song: Pink + White</h1>
-            <p className="opacity-70 mt-4">Frank Ocean · 347 plays</p>
+          <div className={styles.statCard}>
+            <h1 className={styles.statTitle}>Most played song: Pink + White</h1>
+            <p className={styles.statDescription}>Frank Ocean · 347 plays</p>
           </div>
 
-          <div className="space-y-6">
-            <h1 className="text-4xl font-bold">Top Genre: Pop</h1>
-            <p className="opacity-70 mt-4">You and 1,247 other Longhorns</p>
+          <div className={styles.statCard}>
+            <h1 className={styles.statTitle}>Top Genre: Pop</h1>
+            <p className={styles.statDescription}>You and 1,247 other Longhorns</p>
           </div>
 
-          <div className="space-y-6">
-            <h1 className="text-4xl font-bold">Top Match: Bob</h1>
-            <p className="opacity-70 mt-4">94% match. You two have incredibly similar taste!</p>
+          <div className={styles.statCard}>
+            <h1 className={styles.statTitle}>Top Match: Bob</h1>
+            <p className={styles.statDescription}>
+              94% match. You two have incredibly similar taste!
+            </p>
           </div>
         </div>
+      </PageWrapper>
     </>
-    
   );
 }

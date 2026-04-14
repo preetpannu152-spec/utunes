@@ -280,3 +280,52 @@
     font-size: 20px;
     line-height: 1.6;
 }
+
+.toast {
+  position: fixed;
+  bottom: 80px; /* above bottom bar */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #4ade80; /* green */
+  color: white;
+  padding: 0.8rem 1.2rem;
+  border-radius: 10px;
+  font-weight: bold;
+  z-index: 100;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  animation: fadeInOut 2.5s forwards;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translate(-50%, 20px); }
+  10% { opacity: 1; transform: translate(-50%, 0); }
+  90% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, 20px); }
+}
+
+/* Bottom nav */
+.bottomNav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #BF5700;
+  display: flex;
+  justify-content: center;
+  padding: 0.8rem 0;
+  z-index: 50;
+}
+
+.bottomNav .navbar {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.bottomNav .navItem {
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}

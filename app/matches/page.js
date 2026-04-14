@@ -1,10 +1,11 @@
 'use client';
-
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
+import TopNav from '@/components/TopNav';
 import Image from 'next/image';
+import styles from './matches.module.css';
 
 export default function MatchesPage() {
   const router = useRouter();
@@ -40,6 +41,13 @@ export default function MatchesPage() {
           const userDoc = await getDoc(doc(db, 'users', uid));
           if (userDoc.exists()) {
             map[uid] = userDoc.data();
+          } else {
+            map[uid] = {
+              username: 'periperichickenpizza',
+              email: 'dummy@example.com',
+              year: 'UT Student',
+              genres: ['Pop', 'Hip-Hop', 'Jazz']
+            };
           }
         }
 
@@ -56,102 +64,79 @@ export default function MatchesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#BF5700] to-[#D16A28] flex flex-col items-center justify-center text-white">
-        <Image src="/bevologo.png" alt="Loading" width={200} height={200} className="mb-6 animate-pulse" />
-        <h2 className="text-4xl font-bold">Loading...</h2>
-      </div>
-    );
-  }
-
-  if (matches.length === 0) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-[#BF5700] to-[#D16A28] flex flex-col items-center justify-center text-white p-6">
-        <div className="text-8xl mb-6">🎵</div>
-        <h2 className="text-5xl font-bold mb-4">No matches yet</h2>
-        <p className="text-2xl opacity-90 mb-10">Keep swiping!</p>
-        <button
-          onClick={() => router.push('/swipe')}
-          className="bg-white text-[#BF5700] px-12 py-6 rounded-2xl font-bold text-2xl hover:bg-gray-100"
-        >
-          Start Swiping
-        </button>
+      <div className={styles.loadingContainer}>
+        <Image 
+          src="/bevologo.png" 
+          alt="Loading" 
+          width={200} 
+          height={200} 
+          className={styles.loadingLogo}
+        />
+        <h2 className={styles.loadingText}>Loading...</h2>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#BF5700] to-[#D16A28] pb-28">
-      <div className="p-8">
-        <h1 className="text-6xl font-bold text-white text-center mb-12 mt-8">
-          Your Matches 🎉
-        </h1>
+    <div className={styles.pageContainer}>
+      <TopNav active="Matches" />
 
-        <div className="max-w-3xl mx-auto space-y-6">
-          {matches.map((match) => {
+      <div className={styles.contentContainer}>
+        {matches.length === 0 ? (
+          <div className={styles.noMatchesContainer}>
+            <br />
+            <h2></h2>
+            <div className={styles.noMatchesIcon}>🎵</div>
+            <h2 className={styles.noMatchesTitle}>No matches yet</h2>
+            <p className={styles.noMatchesSubtitle}>Keep swiping!</p>
+            <button
+              onClick={() => router.push('/swipe')}
+              className={styles.startSwipingButton}
+            >
+              Start Swiping
+            </button>
+          </div>
+        ) : (
+          
+          matches.map((match) => {
             const otherUid = match.user1 === auth.currentUser?.uid ? match.user2 : match.user1;
             const otherUser = usersMap[otherUid];
 
-            if (!otherUser) return null;
-
             return (
-              <div
-                key={match.id}
-                className="bg-white rounded-3xl p-8 shadow-xl cursor-pointer hover:scale-[1.02] transition"
-              >
-                <div className="flex items-center gap-6 mb-6">
-                  <div className="w-20 h-20 bg-gradient-to-br from-[#BF5700] to-[#D16A28] rounded-full flex items-center justify-center text-white text-3xl font-bold">
+              <div key={match.id} className={styles.matchCard}>
+                <div className={styles.matchHeader}>
+                  <div className={styles.avatar}>
                     {otherUser.username?.charAt(0).toUpperCase() || '?'}
                   </div>
-                  <div>
-                    <h3 className="text-3xl font-bold text-gray-800">
-                      {otherUser.username || otherUser.email}
+                  <div className={styles.userInfo}>
+                    <h3 className={styles.username}>
+                      {otherUser.username || 'periperichickenpizza'}
                     </h3>
-                    <p className="text-xl text-gray-600">{otherUser.year || 'UT Student'}</p>
+                    <p className={styles.year}>{otherUser.year || 'UT Student'}</p>
                   </div>
                 </div>
 
                 {otherUser.genres && otherUser.genres.length > 0 && (
-                  <div className="flex flex-wrap gap-3 mb-6">
+                  <div className={styles.genreTags}>
                     {otherUser.genres.slice(0, 3).map((genre) => (
-                      <span
-                        key={genre}
-                        className="bg-[#BF5700] text-white px-4 py-2 rounded-full text-lg"
-                      >
+                      <span key={genre} className={styles.genreTag}>
                         {genre}
                       </span>
                     ))}
                   </div>
                 )}
 
-                <button className="w-full bg-[#005F86] text-white py-5 rounded-2xl font-bold text-xl hover:bg-[#00A9E0]">
+                <button
+                  onClick={() => router.push(`/chat/${[match.user1, match.user2].sort().join('_')}`)}
+                  className={styles.chatButton}
+                >
                   💬 Start Chatting
                 </button>
               </div>
             );
-          })}
-        </div>
+          })
+        )}
       </div>
-
-      {/* Nav */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-[#BF5700] z-20 shadow-2xl">
-        <div className="flex justify-around items-center h-24 max-w-3xl mx-auto px-6">
-          {['Home', 'Connect', 'Share', 'Events', 'Rewind'].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => {
-                if (tab === 'Home') router.push('/');
-                if (tab === 'Connect') router.push('/swipe');
-                if (tab === 'Share') router.push('/playlists');
-                if (tab === 'Events') router.push('/events');
-                if (tab === 'Rewind') router.push('/rewind');
-              }}
-              className="text-base font-bold text-white/70 uppercase hover:text-white"
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-      </nav>
     </div>
   );
 }

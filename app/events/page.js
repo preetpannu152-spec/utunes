@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import TopNav from '@/components/TopNav';
 import { useRouter } from 'next/navigation';
+import styles from './events.module.css';
 
 export default function EventsPage() {
   const router = useRouter();
@@ -17,22 +18,22 @@ export default function EventsPage() {
     <>
       <TopNav active="Events" />
 
-      <div className="min-h-screen bg-[#f3f0ea]">
-        <div className="max-w-7xl mx-auto px-12 py-16">
+      <div className={styles.pageContainer}>
+        <div className={styles.contentWrapper}>
           {/* Header */}
-          <div className="mb-20 flex justify-center">
+          <div className={styles.header}>
             <Image
               src="/eventsnearyou.png"
               alt="Events Near You"
               width={1000}
-              height={180}
-              priority
+              height={300}
+              className={styles.headerImage}
             />
           </div>
 
           {/* Cards */}
-          <div className="flex justify-center">
-            <div className="grid grid-cols-2 gap-x-28 gap-y-20">
+          <div className={styles.cardsContainer}>
+            <div className={styles.cardsGrid}>
               {cards.map((c, index) => {
                 const isLast = index === cards.length - 1;
 
@@ -40,18 +41,15 @@ export default function EventsPage() {
                   <div
                     key={c.id}
                     onClick={() => router.push(`/events/chat/${c.id}`)}
-                    className={`w-[400px] bg-white rounded-md shadow-md cursor-pointer
-                      transition-all hover:-translate-y-1 hover:shadow-xl
-                      ${isLast ? 'col-span-2 justify-self-center -mt-10' : ''}
-                    `}
+                    className={`${styles.card} ${isLast ? styles.cardLast : ''}`}
                   >
-                    <div className="px-10 py-14 flex justify-center">
+                    <div className={styles.cardContent}>
                       <Image
                         src={c.logo}
                         alt={c.alt}
-                        width={380}
-                        height={220}
-                        className="object-contain"
+                        width={450}
+                        height={300}
+                        className={styles.cardLogo}
                       />
                     </div>
                   </div>
@@ -59,7 +57,6 @@ export default function EventsPage() {
               })}
             </div>
           </div>
-
         </div>
       </div>
     </>

@@ -1,5 +1,4 @@
 'use client';
-
 import TinderCard from 'react-tinder-card';
 import { collection, getDocs, addDoc, query, where } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
@@ -11,64 +10,54 @@ import styles from './swipe.module.css';
 
 export default function SwipePage() {
   const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    if (!auth.currentUser) router.push('/swipe');
-    fetchUsers();
-  }, []);
-
-  const fetchUsers = async () => {
-    const snap = await getDocs(collection(db, 'users'));
-    setUsers(
-      snap.docs
-        .map(d => d.data())
-        .filter(u => u.uid !== auth.currentUser.uid)
-    );
-  };
-
-  const swiped = async (dir, target) => {
-    if (dir !== 'right') return;
-
-    await addDoc(collection(db, 'swipes'), {
-      from: auth.currentUser.uid,
-      to: target.uid,
-      direction: 'right',
+    const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
+      if (!currentUser) {
+        router.push('/signup');
+      } else {
+        await fetchUsers(currentUser.uid);
+      }
     });
 
-    const q = query(
-      collection(db, 'swipes'),
-      where('from', '==', target.uid),
-      where('to', '==', auth.currentUser.uid),
-      where('direction', '==', 'right')
-    );
+    return () => unsubscribe();
+  }, [router]);
 
-    const snap = await getDocs(q);
-    if (!snap.empty) {
-      await addDoc(collection(db, 'matches'), {
-        user1: auth.currentUser.uid,
-        user2: target.uid,
-        matchedAt: new Date(),
-      });
+  const fetchUsers = async (uid) => {
+    try {
+      setLoading(true);
+      const snap = await getDocs(collection(db, 'users'));
+      const otherUsers = snap.docs
+        .map(d => d.data())
+        .filter(u => u.uid && u.uid !== uid); // filter out self
+      setUsers(otherUsers);
+    } catch (err) {
+      console.error('Error fetching users:', err);
+    } finally {
+      setLoading(false);
     }
   };
+
+  if (loading) return <p className="text-center mt-10">Loading users...</p>;
 
   return (
     <PageWrapper>
       <TopNav active="Connect" />
 
       <div className={styles.swipeContainer}>
-        {users.length === 0 && (
+        {users.length === 0 ? (
           <p className={styles.noUsersText}>No users to swipe.</p>
-        )}
-
-        <div className={styles.cardContainer}>
-          {users
-            .slice(0)
-            .reverse()
-            .map((user, index) => {
-              const offset = index * 9;
-              return (
+        ) : (
+          <div className={styles.cardContainer}>
+            {users
+              .slice(0)
+              .reverse()
+              .map((user, index) => {
+                const offset = index * 3;
+                return (
+                  
                 <TinderCard
                   key={user.uid}
                   onSwipe={dir => swiped(dir, user)}
@@ -142,10 +131,55 @@ export default function SwipePage() {
                     </div>
                   </div>
                 </TinderCard>
-              );
-            })}
-        </div>
+                );
+              })}
+          </div>
+        )}
       </div>
+
+      {/* Button to go to Matches/Likes page */}
+      <div className="text-center mt-6">
+        <button
+          className="bg-white text-[#BF5700] py-2 px-6 rounded font-bold"
+          onClick={() => router.push('/matches')}
+        >
+          View Matches & Likes
+        </button>
+      </div>
+      <div className={styles.buttons}>
+        <img src="/x.svg"/>
+        <img src="/heart.svg"/> 
+      </div>
+      
     </PageWrapper>
   );
+
+  async function swiped(dir, target) {
+    if (dir !== 'right') return;
+    const currentUser = auth.currentUser;
+    if (!currentUser) return;
+
+    await addDoc(collection(db, 'swipes'), {
+      from: currentUser.uid,
+      to: target.uid,
+      direction: 'right',
+    });
+
+    // Check for match
+    const q = query(
+      collection(db, 'swipes'),
+      where('from', '==', target.uid),
+      where('to', '==', currentUser.uid),
+      where('direction', '==', 'right')
+    );
+
+    const snap = await getDocs(q);
+    if (!snap.empty) {
+      await addDoc(collection(db, 'matches'), {
+        user1: currentUser.uid,
+        user2: target.uid,
+        matchedAt: new Date(),
+      });
+    }
+  }
 }

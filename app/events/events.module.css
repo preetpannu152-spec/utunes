@@ -1,0 +1,62 @@
+.pageContainer {
+  min-height: 100vh;
+  background-color: #f3f0ea;
+}
+
+.contentWrapper {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 4rem 3rem;
+}
+
+.header {
+  /* margin-bottom: 5rem; */
+  display: flex;
+  justify-content: center;
+}
+
+.headerImage {
+  width: auto;
+  height: auto;
+}
+
+.cardsContainer {
+  display: flex;
+  justify-content: center;
+}
+
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 5rem 7rem;
+}
+
+.card {
+  width: 400px;
+  /* background-color: white; */
+  border-radius: 0.375rem;
+  /* box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); */
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-0.25rem);
+  /* box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); */
+}
+
+.cardLast {
+  grid-column: span 2;
+  justify-self: center;
+  /* margin-top: -2.5rem; */
+}
+
+.cardContent {
+  /* padding: 3.5rem 2.5rem; */
+  display: flex;
+  justify-content: center;
+}
+
+.cardLogo {
+  object-fit: contain;
+}

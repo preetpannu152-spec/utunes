@@ -1,0 +1,166 @@
+.pageContainer {
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #BF5700, #D16A28);
+  padding-bottom: 7rem;
+}
+
+.loadingContainer {
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #BF5700, #D16A28);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.loadingLogo {
+  margin-bottom: 1.5rem;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.loadingText {
+  font-size: 2.25rem;
+  font-weight: bold;
+}
+
+.contentContainer {
+  padding: 2rem;
+  padding-top: 6rem;
+  max-width: 48rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.noMatchesContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  text-align: center;
+}
+
+.noMatchesIcon {
+  font-size: 6rem;
+  margin-bottom: 1.5rem;
+}
+
+.noMatchesTitle {
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.noMatchesSubtitle {
+  font-size: 1.5rem;
+  opacity: 0.9;
+  margin-bottom: 2.5rem;
+}
+
+.startSwipingButton {
+  background-color: white;
+  color: #BF5700;
+  padding: 1.5rem 3rem;
+  border-radius: 1rem;
+  font-weight: bold;
+  font-size: 1.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.startSwipingButton:hover {
+  background-color: #f3f4f6;
+}
+
+.matchCard {
+  background-color: white;
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.matchCard:hover {
+  transform: scale(1.02);
+}
+
+.matchHeader {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.avatar {
+  width: 5rem;
+  height: 5rem;
+  background: linear-gradient(to bottom right, #BF5700, #D16A28);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.875rem;
+  font-weight: bold;
+}
+
+.userInfo {
+  flex: 1;
+}
+
+.username {
+  font-size: 1.875rem;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+.year {
+  font-size: 1.25rem;
+  color: #4b5563;
+}
+
+.genreTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.genreTag {
+  background-color: #BF5700;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-size: 1.125rem;
+}
+
+.chatButton {
+  width: 100%;
+  background-color: #005F86;
+  color: white;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  font-weight: bold;
+  font-size: 1.25rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.chatButton:hover {
+  background-color: #00A9E0;
+}

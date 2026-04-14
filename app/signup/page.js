@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth, db } from '@/lib/firebase';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import styles from './LandingPage.module.css';
 
@@ -17,6 +17,7 @@ const LandingPage = () => {
   const [genres, setGenres] = useState([]);
   const [spotifyLinked, setSpotifyLinked] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState(''); // ✅ popup message
 
   const allGenres = ['Pop', 'Hip-Hop', 'Indie', 'Rock', 'EDM', 'R&B', 'Jazz'];
 
@@ -26,6 +27,12 @@ const LandingPage = () => {
     );
   };
 
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 2500); // disappears after 2.5s
+  };
+
+  // Sign Up
   const handleSignup = async () => {
     if (!email || !password || !year || !username) {
       alert('Fill all fields');
@@ -37,10 +44,8 @@ const LandingPage = () => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Update display name
       await updateProfile(user, { displayName: username });
 
-      // Save extra user data in Firestore
       await setDoc(doc(db, 'users', user.uid), {
         username,
         email,
@@ -50,18 +55,33 @@ const LandingPage = () => {
         createdAt: new Date(),
       });
 
-      alert('Account creation successful!');
-      router.push('/connect'); // redirect to swipe/connect page
+      showToast('Account created successfully! 🎉');
+      setTimeout(() => router.push('/swipe'), 1000);
 
     } catch (error) {
-      alert(error.message);
+      alert('Sign up failed: ' + error.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSignin = () => {
-    router.push('/swipe');
+  // Sign In
+  const handleSignin = async () => {
+    if (!email || !password) {
+      alert('Please enter email and password');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await signInWithEmailAndPassword(auth, email, password);
+      showToast('Logged in successfully! 🎉');
+      setTimeout(() => router.push('/swipe'), 1000);
+    } catch (error) {
+      alert('Sign in failed: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -72,10 +92,10 @@ const LandingPage = () => {
             <img src="/logo.svg" className={styles.utune} alt="LOGO" />
             <img src="/mascot.svg" className={styles.mascot} alt="BEATVO" />
           </div>
-          
+
           <div className={styles.logintext}>
             <h1 className={styles.title}>{isSignup ? 'SIGN UP' : 'LOGIN'}</h1>
-            
+
             {isSignup && (
               <>
                 <p className={styles.body}>USERNAME</p>
@@ -87,7 +107,7 @@ const LandingPage = () => {
                 />
               </>
             )}
-            
+
             <p className={styles.body}>EMAIL</p>
             <input
               className={styles.box}
@@ -95,7 +115,7 @@ const LandingPage = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-            
+
             <p className={styles.body}>PASSWORD</p>
             <input
               className={styles.box}
@@ -123,6 +143,7 @@ const LandingPage = () => {
                   {allGenres.map(g => (
                     <button
                       key={g}
+                      type="button"
                       onClick={() => toggleGenre(g)}
                       className={`${styles.genreButton} ${
                         genres.includes(g) ? styles.genreSelected : ''
@@ -151,6 +172,7 @@ const LandingPage = () => {
               {isSignup ? (
                 <>
                   <button 
+                    type="button"
                     className={styles.buttonStyle}
                     onClick={handleSignup}
                     disabled={loading}
@@ -158,6 +180,7 @@ const LandingPage = () => {
                     {loading ? 'Signing up...' : 'Sign Up'}
                   </button>
                   <button 
+                    type="button"
                     className={styles.buttonStyle}
                     onClick={() => setIsSignup(false)}
                   >
@@ -167,35 +190,46 @@ const LandingPage = () => {
               ) : (
                 <>
                   <button 
+                    type="button"
                     className={styles.buttonStyle}
                     onClick={() => setIsSignup(true)}
                   >
                     Create Account
                   </button>
                   <button 
+                    type="button"
                     className={styles.buttonStyle}
                     onClick={handleSignin}
+                    disabled={loading}
                   >
-                    Sign In
+                    {loading ? 'Signing in...' : 'Sign In'}
                   </button>
                 </>
               )}
             </div>
           </div>
-
-          <div>
-            <ul className={styles.navbar}>
-              <li className={styles.navItem}>Home</li>
-              <li className={styles.navItem}>Connect</li>
-              <li className={styles.navItem}>Share</li>
-              <li className={styles.navItem}>Events</li>
-              <li className={styles.navItem}>Rewind</li>
-            </ul>
-          </div>
         </div>
 
         <img src="/Record.svg" className={styles.record} alt="RECORD" />
       </div>
+
+      {/* ✅ Bottom Navigation Bar */}
+      <div className={styles.bottomNav}>
+        <ul className={styles.navbar}>
+          <li className={styles.navItem}>Home</li>
+          <li className={styles.navItem}>Connect</li>
+          <li className={styles.navItem}>Share</li>
+          <li className={styles.navItem}>Events</li>
+          <li className={styles.navItem}>Rewind</li>
+        </ul>
+      </div>
+
+      {/* ✅ Toast Popup */}
+      {toast && (
+        <div className={styles.toast}>
+          {toast}
+        </div>
+      )}
     </div>
   );
 };
